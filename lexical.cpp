@@ -10,6 +10,94 @@ int result;
 int index = 0;
 string savechar[] = { "if", "then", "while", "do", "else", "end"};
 
+bool ifOperator(char ch) {
+
+	return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == ';' || ch == ')' || ch == ' ');
+}
+
+bool ifHex(char ch) {
+	return ((ch >= '0'&&ch <= '9') || (ch >= 'a'&&ch <= 'f') || (ch >= 'A'&&ch <= 'F'));
+}
+
+int HexProb(char ch) {
+	token = token + ch;
+	ch = charac[index++];
+	if (!(ifHex(ch))) {
+		result = 0;
+		return 1;
+	}
+	while (ifHex(ch)) {
+		token = token + ch;
+		ch = charac[index++];
+	}
+	if (ifOperator(ch)) {
+		result = 16;
+	} else if (ch == '.') {
+		token = token + ch;
+		ch = charac[index++];
+		if (!(ifHex(ch))) {
+			result = 0;
+			return 1;//****
+		}
+		while (ifHex(ch)) {
+			token = token + ch;
+			ch = charac[index++];
+		}
+
+		if (ifOperator(ch)) {
+			result = 16;
+		} else {
+			result = 0;
+			return 1;
+		}
+	} else {
+		result = 0;
+		return 1;
+	}
+}
+
+int OctProb(char ch) {
+	token = token + ch;
+	ch = charac[index++];
+
+	while ((ch >= '0' && ch <= '7')) {
+	token = token + ch;
+	ch = charac[index++];
+	}
+	if (ifOperator(ch)) {
+	result = 8;
+	} else if (ch == '.') {
+	token = token + ch;
+	ch = charac[index++];
+	if (!(ch >= '0' && ch <= '7')) {
+		result = 0;
+		return 1;//****
+	}
+
+	while ((ch >= '0' && ch <= '7')) {
+		token = token + ch;
+		ch = charac[index++];
+	}
+
+	if (ifOperator(ch)) {
+		result = 8;
+	} else {
+		result = 0;
+		return 1;
+	}
+	} else {
+	result = 0;
+	return 1;
+	}
+}
+
+int DecProb(char ch) {
+
+}
+int tokenProb(char ch) {
+
+}
+
 int scan(){
 	if (ch == '\0' || ch == ' ') {
 		do {
@@ -24,78 +112,11 @@ int scan(){
 			token = token + ch;
 			ch = charac[index++];
 			if (ch == 'x' || ch == 'X') {//疑似十六进制处理程序
-				token = token + ch;
-				ch = charac[index++];
-				if (!((ch >= '0'&&ch <= '9') || (ch >= 'a'&&ch <= 'f') || (ch >= 'A'&&ch <= 'F'))) {
-					result = 0;
-					return 1;
-				}
-				while ((ch >= '0'&&ch <= '9') || (ch >= 'a'&&ch <= 'f') || (ch >= 'A'&&ch <= 'F')) {
-					token = token + ch;
-					ch = charac[index++];
-				}
-				if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == ';' || ch == ')' || ch == ' ') {
-					result = 16;
-				} else if (ch == '.') {
-					token = token + ch;
-					ch = charac[index++];
-					if (!((ch >= '0'&&ch <= '9') || (ch >= 'a'&&ch <= 'f') || (ch >= 'A'&&ch <= 'F'))) {
-						result = 0;
-						return 1;//****
-					}
-					while ((ch >= '0'&&ch <= '9') || (ch >= 'a'&&ch <= 'f') || (ch >= 'A'&&ch <= 'F')) {
-						token = token + ch;
-						ch = charac[index++];
-					}
-
-					if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == ';' || ch == ')' || ch == ' ') {
-						result = 16;
-					} else {
-						result = 0;
-						return 1;
-					}
-				} else {
-					result = 0;
-					return 1;
-				}
+				return HexProb(ch);
 			} else if ((ch >= '0' && ch <= '7')) {//疑似八进制处理程序
-				token = token + ch;
-				ch = charac[index++];
-
-				while ((ch >= '0' && ch <= '7')) {
-					token = token + ch;
-					ch = charac[index++];
-				}
-
-				if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == ';' || ch == ')' || ch == ' ') {
-					result = 8;
-
-				} else if (ch == '.') {
-					token = token + ch;
-					ch = charac[index++];
-					if (!(ch >= '0' && ch <= '7')) {
-						result = 0;
-						return 1;//****
-					}
-					
-					while ((ch >= '0' && ch <= '7')) {
-						token = token + ch;
-						ch = charac[index++];
-					}
-					
-					if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == ';' || ch == ')' || ch == ' ') {
-						result = 8;
-					} else {
-						result = 0;
-						return 1;
-					}
-				} else {
-					result = 0;
-					return 1;
-				}
+				return OctProb(ch);
 			} else {//其他情况处理 
-				if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == ';' || ch == ')' || ch == ' ')
-				{
+				if (ifOperator(ch)) {
 					result = 10;
 				}
 				else {
@@ -110,7 +131,7 @@ int scan(){
 				ch = charac[index++];
 			}
 
-			if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == ';' || ch == ')' || ch == ' ') {
+			if (ifOperator(ch)) {
 				result = 10;
 			} else if (ch == '.') {
 				ch = charac[index++];
@@ -122,7 +143,7 @@ int scan(){
 					token = token + ch;
 					ch = charac[index++];
 				}
-				if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == ';' || ch == ')' || ch == ' ') {
+				if (ifOperator(ch)) {
 					result = 10;
 				} else {
 					result = 0;
@@ -152,12 +173,13 @@ int scan(){
 				token = token + ch;
 				ch = charac[index++];
 			}
-			if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == '(' || ch == ')' || ch == ' ' || ch == ';') {
+
+			if (ifOperator(ch) || ch == ';') {
 				result = 7;
 				return 0;
 			}
-		} else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == '(' || ch == ')' || ch == ' ' || ch == ';') {
-			
+
+		} else if (ifOperator(ch) || ch == ';') {
 			for (int i = 0; i < (int)(sizeof(savechar) / sizeof(savechar[0])); i++) {
 				if (token == savechar[i]) {
 					result = 6;
@@ -167,38 +189,23 @@ int scan(){
 			result = 7;
 			return 0;
 		}
+		       
 	} else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == '(' || ch == ')') {//系统保留字符处理程序
 		token = token + ch;
 		ch = charac[index++];
 		result = 6;
 		return 0;
-	}
-
-	else if (ch == ';')
-	{
+	} else if (ch == ';') {
 		result = 5;
 		return 0;
-	}
-
-	else//其他情况处理程序
-	{
+	} else {//其他情况处理程序
 		result = 0;
 		return 1;
 	}
 	return 0;
 }
 
-// int main(int argc, char const *argv[]) {
-// 	/* code */
-// 	return 0;
-// }
-
-int main(){
-
-	/*
-	 * HEX
-	 */
-
+int main(int argc, char const *argv[]) {
 	char ch;
 	int len = 0;
 	cout << "please input code:" << endl;
@@ -227,7 +234,7 @@ int main(){
 			break;
 
 		case 6:
-			cout << "_:" << token << endl;
+			cout << "_: " << token << endl;
 			break;
 
 		case 5:
